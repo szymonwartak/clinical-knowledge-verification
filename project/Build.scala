@@ -4,13 +4,15 @@ import com.localytics.sbt.dynamodb.DynamoDBLocalKeys._
 import spray.revolver.RevolverKeys
 
 object BabylonBuild extends Build with RevolverKeys {
-  startDynamoDBLocal <<= startDynamoDBLocal.dependsOn(compile in Test)
-  test in Test <<= (test in Test).dependsOn(startDynamoDBLocal)
-  testOptions in Test <+= dynamoDBLocalTestCleanup
 
   val akkaV = "2.3.3"
   val sprayV = "1.3.2"
 
+  val dynamoDbSettings = Seq(
+    startDynamoDBLocal <<= startDynamoDBLocal.dependsOn(compile in Test),
+    test in Test <<= (test in Test).dependsOn(startDynamoDBLocal),
+    testOptions in Test <+= dynamoDBLocalTestCleanup
+  )
   val coreSettings = Seq(
     name := "clinical_knowledge_verification",
     version := "1.0",
@@ -38,7 +40,7 @@ object BabylonBuild extends Build with RevolverKeys {
   )
 
   lazy val root = Project("clinical_knowledge_verification", file(".")).settings(
-    coreSettings : _*
+    coreSettings ++ dynamoDbSettings: _*
   )
 
 //  lazy val restApi = Project("restApi", file("restApi"))
