@@ -1,0 +1,227 @@
+[
+  {
+    "source": {
+      "date": "20160418",
+      "type": "webpage",
+      "payload": {
+        "url": "http://www.nhs.uk/conditions/obsessive-compulsive-disorder/Pages/Causes.aspx"
+      }
+    },
+    "meta_data": {
+      "annotated_on": "20160530",
+      "pipeline_id": "human-corrected-aszolnoki-v1",
+      "responsible": "alex.szolnoki@babylonhealth.com"
+    },
+    "knowledge": {
+      "type": "ProcedureIncorporatesBodyPart",
+      "payload": {
+        "bodypart": {
+          "id_list": [
+            {
+              "lang": "en_uk",
+              "code": "C0019552",
+              "id": "umls2016aa"
+            },
+            {
+              "lang": "en_uk",
+              "code": "24136001",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "29836001",
+              "id": "SNOMEDCT_US"
+            }
+          ],
+          "label": {
+            "lang": "en_uk",
+            "text": "hip"
+          }
+        },
+        "procedure": {
+          "id_list": [
+            {
+              "lang": "en_uk",
+              "code": "C0392806",
+              "id": "umls2016aa"
+            },
+            {
+              "lang": "en_uk",
+              "code": "C0035139",
+              "id": "umls2016aa"
+            },
+            {
+              "lang": "en_uk",
+              "code": "29198004",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "397956004",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "3137001",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "373188003",
+              "id": "SNOMEDCT_US"
+            }
+          ],
+          "label": {
+            "lang": "en_uk",
+            "text": "hip replacement"
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": {
+      "date": "20160418",
+      "type": "webpage",
+      "payload": {
+        "url": "http://www.nhs.uk/conditions/obsessive-compulsive-disorder/Pages/Causes.aspx"
+      }
+    },
+    "meta_data": {
+      "annotated_on": "20160530",
+      "pipeline_id": "human-corrected-aszolnoki-v1",
+      "responsible": "alex.szolnoki@babylonhealth.com"
+    },
+    "knowledge": {
+      "type": "DiseaseOrSyndromeIncorporatesBodyPart",
+      "payload": {
+        "bodypart": {
+          "id_list": [],
+          "label": {
+            "lang": "en_uk",
+            "text": "ulcer"
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": {
+      "date": "20160418",
+      "type": "webpage",
+      "payload": {
+        "url": "http://www.nhs.uk/conditions/obsessive-compulsive-disorder/Pages/Causes.aspx"
+      }
+    },
+    "meta_data": {
+      "annotated_on": "20160530",
+      "pipeline_id": "human-corrected-aszolnoki-v1",
+      "responsible": "alex.szolnoki@babylonhealth.com"
+    },
+    "knowledge": {
+      "type": "DiseaseOrSyndromeIncorporatesBodyPart",
+      "payload": {
+        "bodypart": {
+          "id_list": [
+            {
+              "lang": "en_uk",
+              "code": "C1269079",
+              "id": "umls2016aa"
+            },
+            {
+              "lang": "en_uk",
+              "code": "182281004",
+              "id": "SNOMEDCT_US"
+            }
+          ],
+          "label": {
+            "lang": "en_uk",
+            "text": "leg"
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": {
+      "date": "20160418",
+      "type": "webpage",
+      "payload": {
+        "url": "http://www.nhs.uk/conditions/obsessive-compulsive-disorder/Pages/Causes.aspx"
+      }
+    },
+    "meta_data": {
+      "annotated_on": "20160530",
+      "pipeline_id": "human-corrected-aszolnoki-v1",
+      "responsible": "alex.szolnoki@babylonhealth.com"
+    },
+    "knowledge": {
+      "type": "DiseaseOrSyndromeIncorporatesBodySystem",
+      "payload": {}
+    }
+  },
+  {
+    "source": {
+      "date": "20160418",
+      "type": "webpage",
+      "payload": {
+        "url": "http://www.nhs.uk/conditions/obsessive-compulsive-disorder/Pages/Causes.aspx"
+      }
+    },
+    "meta_data": {
+      "annotated_on": "20160530",
+      "pipeline_id": "human-corrected-aszolnoki-v1",
+      "responsible": "alex.szolnoki@babylonhealth.com"
+    },
+    "knowledge": {
+      "type": "ProcedureIncorporatesBodyPart",
+      "payload": {
+        "bodypart": {
+          "id_list": [],
+          "label": {
+            "lang": "en_uk",
+            "text": "knee"
+          }
+        },
+        "procedure": {
+          "id_list": [
+            {
+              "lang": "en_uk",
+              "code": "C0086511",
+              "id": "umls2016aa"
+            },
+            {
+              "lang": "en_uk",
+              "code": "C0035139",
+              "id": "umls2016aa"
+            },
+            {
+              "lang": "en_uk",
+              "code": "19063003",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "265102002",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "3137001",
+              "id": "SNOMEDCT_US"
+            },
+            {
+              "lang": "en_uk",
+              "code": "373188003",
+              "id": "SNOMEDCT_US"
+            }
+          ],
+          "label": {
+            "lang": "en_uk",
+            "text": "knee replacement"
+          }
+        }
+      }
+    }
+  }
+]

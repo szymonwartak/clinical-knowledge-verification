@@ -1,6 +1,9 @@
-/**
- * Created by szymon.wartak on 25/07/2016.
- */
-class DynamoDbTest {
+import org.scalatest.{FlatSpec, Matchers}
 
+
+class DynamoDbTest extends FlatSpec with Matchers {
+
+  "something" should "do stuff" in {
+    List(1).head should be (1)
+  }
 }
