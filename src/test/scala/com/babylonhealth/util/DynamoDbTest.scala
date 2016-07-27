@@ -5,7 +5,8 @@ import org.scalatest._
 
 class DynamoDbTest extends FlatSpec with Matchers with BeforeAndAfter {
   val dynamoDb = new DynamoDb
-  dynamoDb.loadRelations(getClass.getResource("/relations_human_annotations_test.json"))
+  val jsonStr = scala.io.Source.fromURL(getClass.getResource("/relations_human_annotations_test.json")).getLines().mkString
+  dynamoDb.loadRelations(jsonStr)
 
   "getNextRelations" should "return 5 added from test data" in {
     val relations = dynamoDb.getNextRelations()

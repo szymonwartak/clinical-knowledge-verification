@@ -9,6 +9,7 @@ import com.amazonaws.services.{dynamodbv2 => aws}
 import com.google.gson.{Gson, GsonBuilder}
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
 
 
 // classes for reading JSON sent from NLP guys
@@ -56,19 +57,18 @@ class DynamoDb(isTest: Boolean = true) {
   // TODO: solve (threading?) issues - this doesn't initialize properly with spray
   def gson: Gson = new GsonBuilder().setPrettyPrinting.create
 
-
   def updateRelationStatus(id: Int, newStatus: VerificationStatus.Value): Unit = {
     dynamoDB.putAttributes(knowledgeTable, id, attributes = (status.toString, newStatus.toString))
   }
   def getById(id: Int) = dynamoDB.get(knowledgeTable, id)
-  def getNextRelations(limit: Int = 10): Seq[Relation] = {
+  def getNextRelations(limit: Int = 10): Array[Relation] = {
     dynamoDB.scan(knowledgeTable, filterOpen, limit = limit)
       .flatMap(_.attributes.filter(_.name == knowledge.toString))
       .flatMap(_.value.s)
-      .map(x => gson.fromJson(x, classOf[Relation]))
+      .map(x => gson.fromJson(x, classOf[Relation])).toArray
   }
-  def loadRelations(resource: URL): Unit = {
-    val jsonStr = scala.io.Source.fromURL(resource).getLines().mkString
+  def loadRelations(jsonStr: String): Unit = {
+//    val jsonStr = scala.io.Source.fromURL(resource).getLines().mkString
     val relations = gson.fromJson(jsonStr, classOf[Array[Relation]])
     val countBefore = dynamoDB.describe(knowledgeTable).get.itemCount
 

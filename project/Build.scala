@@ -34,7 +34,8 @@ object BabylonBuild extends Build with RevolverKeys {
       "io.spray" %% "spray-can" % sprayV,
       "io.spray" %% "spray-json" % sprayV,
       "io.spray" %% "spray-httpx" % sprayV,
-      "io.spray" %% "spray-routing" % sprayV
+      "io.spray" %% "spray-routing" % sprayV,
+      "io.spray" %% "spray-testkit" % sprayV % "test"
 
     )
   )

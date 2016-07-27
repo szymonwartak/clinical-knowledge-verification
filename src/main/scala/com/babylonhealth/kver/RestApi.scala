@@ -1,16 +1,16 @@
 package com.babylonhealth.kver
 
+import spray.http._
+import spray.httpx.SprayJsonSupport._
 import akka.actor.ActorSystem
 import akka.util.Timeout
 import com.babylonhealth.util._
 import com.google.gson.{Gson, GsonBuilder}
-import spray.http._
-import spray.httpx.SprayJsonSupport._
-import spray.httpx.marshalling.MetaToResponseMarshallers
-import spray.httpx.unmarshalling._
+import spray.httpx.marshalling._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
-import spray.routing.SimpleRoutingApp
+import spray.routing.{HttpService, SimpleRoutingApp}
 
+import scala.collection.immutable.HashMap
 import scala.concurrent.duration._
 import scala.util.Try
 
@@ -21,30 +21,33 @@ object JsonDeser extends DefaultJsonProtocol {
   implicit val m1: RootJsonFormat[DoctorUpdate] = jsonFormat2(DoctorUpdate.apply)
 }
 
-object RestApi extends App with SimpleRoutingApp with MetaToResponseMarshallers{ //with SSLConfiguration {
-  import JsonDeser._
-
-  val gson: Gson = new GsonBuilder().setPrettyPrinting.create
-  val dynamoDb = new DynamoDb
-
+object RestApi extends SimpleRoutingApp with CKRouting with App { //with SSLConfiguration {
   implicit val system = ActorSystem("restapi")
   implicit val timeout = Timeout(5 seconds)
 
-  // sbt "startDynamodbLocal ~re-start"
-  startServer(interface = "0.0.0.0", port = 8080) {
-    // curl -X POST localhost:8080/nlp-receive
+  startServer(interface = "0.0.0.0", port = 8080) (routes)
+}
+
+trait CKRouting extends HttpService with MetaToResponseMarshallers {
+  import JsonDeser._
+
+  val gson: Gson = new GsonBuilder().setPrettyPrinting.create
+
+  val dynamoDb = new DynamoDb
+
+  // user login
+  // endpoint: NLP receive
+  // endpoint: doctor read / update
+  lazy val routes = {
     path("nlp-receive") {
       post {
         decompressRequest() {
-          detach() { req =>
+          entity(as[String]) { data =>
             complete {
-              Try(req.request.entity)
-                .map { case (HttpEntity.NonEmpty(contentType, data)) =>
-                  val relations = gson.fromJson(data.asString, classOf[Array[Relation]])
-                  println(s"received ${relations.size} relations")
-                  "ok"
-                }
-
+              println("nlp-receive")
+              val relations = gson.fromJson(data, classOf[Array[Relation]])
+              dynamoDb.loadRelations(data)
+              relations.size.toString
             }
           }
         }
@@ -55,8 +58,9 @@ object RestApi extends App with SimpleRoutingApp with MetaToResponseMarshallers{
         entity(as[DoctorUpdate]) { du =>
           detach() {
             complete {
+              println("doctor-update")
               dynamoDb.updateRelationStatus(du.id, VerificationStatus.withName(du.verificationStatus))
-              "updated"
+              "ok"
             }
           }
         }
@@ -67,6 +71,7 @@ object RestApi extends App with SimpleRoutingApp with MetaToResponseMarshallers{
         decompressRequest() {
           detach() {
             complete {
+              println("doctor-read")
               gson.toJson(dynamoDb.getNextRelations())
             }
           }
@@ -74,12 +79,7 @@ object RestApi extends App with SimpleRoutingApp with MetaToResponseMarshallers{
       }
     }
   }
-  // user login
-  // endpoint: NLP receive
-  // endpoint: doctor read / update
 }
-
-
 /**
  * Batch process to write to knowledge base
  */
