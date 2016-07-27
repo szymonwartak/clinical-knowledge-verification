@@ -1,18 +1,15 @@
 package com.babylonhealth.kver
 
-import spray.http._
-import spray.httpx.SprayJsonSupport._
 import akka.actor.ActorSystem
 import akka.util.Timeout
 import com.babylonhealth.util._
 import com.google.gson.{Gson, GsonBuilder}
+import spray.httpx.SprayJsonSupport._
 import spray.httpx.marshalling._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 import spray.routing.{HttpService, SimpleRoutingApp}
 
-import scala.collection.immutable.HashMap
 import scala.concurrent.duration._
-import scala.util.Try
 
 // request param classes
 case class DoctorUpdate(id: Int, verificationStatus: String)
@@ -33,12 +30,17 @@ trait CKRouting extends HttpService with MetaToResponseMarshallers {
 
   val gson: Gson = new GsonBuilder().setPrettyPrinting.create
 
-  val dynamoDb = new DynamoDb
+  val dynamoDb = DynamoDb.get
 
   // user login
   // endpoint: NLP receive
   // endpoint: doctor read / update
   lazy val routes = {
+    pathPrefix("css") { get { getFromResourceDirectory("webapp/css") } } ~
+    pathPrefix("js") { get { getFromResourceDirectory("webapp/js") } } ~
+    path("") {
+      getFromResource("webapp/index.html")
+    } ~
     path("nlp-receive") {
       post {
         decompressRequest() {
@@ -72,10 +74,18 @@ trait CKRouting extends HttpService with MetaToResponseMarshallers {
           detach() {
             complete {
               println("doctor-read")
-              gson.toJson(dynamoDb.getNextRelations())
+              gson.toJson(dynamoDb.getNextRelationWithIds())
             }
           }
         }
+      }
+    } ~
+    path("get-by-status" / IntNumber / Rest) { (limit, pathRest) =>
+      get {
+              complete {
+                println("get-by-status")
+                gson.toJson(dynamoDb.getRelations(VerificationStatus.withName(pathRest), limit))
+              }
       }
     }
   }

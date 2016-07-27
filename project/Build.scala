@@ -14,6 +14,7 @@ object BabylonBuild extends Build with RevolverKeys {
     testOptions in Test <+= dynamoDBLocalTestCleanup
   )
   val coreSettings = Seq(
+    parallelExecution in Test := false,
     name := "clinical_knowledge_verification",
     version := "1.0",
     scalaVersion := "2.11.8",

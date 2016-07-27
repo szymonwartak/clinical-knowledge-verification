@@ -1,0 +1,87 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+    <script id="relationTmpl" type="text/template">
+        <div id="relation{{id}}" class="card">
+            {{#relation}}
+            <div>Id: {{id}}, Date: {{source.date}}</div>
+            <div>{{#knowledge}}
+                <ul>
+                    <li>Type: {{type}}</li>
+                    <li>Type: {{payload.bodypart.label.text}}</li>
+                    <li>Type: {{payload.procedure.label.text}}</li>
+                </ul>
+                {{/knowledge}}
+            </div>
+            {{/relation}}
+            <div>
+                <button type="button" class="btn btn-success" onClick="updateStatus({{id}}, 'Approved')">Approve</button>
+                <button type="button" class="btn btn-warning" onClick="updateStatus({{id}}, 'Ignored')">Ignore</button>
+                <button type="button" class="btn btn-danger" onClick="updateStatus({{id}}, 'Rejected')">Reject</button>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+    function updateStatus(id, newStatus) {
+        $('#relation'+id).fadeOut("slow");
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            contentType: "application/json",
+            url: '/doctor-update',
+            data: JSON.stringify({id: id, verificationStatus: newStatus}),
+            success: function(data) { console.log('update:'+data); }
+        });
+    }
+    function updateStats() {
+        $.each(['Open', 'Approved', 'Ignored', 'Rejected'], function(k, status) {
+            $.get( "/get-by-status/2147483647/"+status, function( data ) {
+              $( "#stats-"+status ).html( status+': '+JSON.parse(data).length );
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        updateStats();
+        $.getJSON(
+            "/doctor-read",
+            function (relations) {
+                var template = $("#relationTmpl").html();
+                $.each(relations, function(key, relation) {
+                    var html = Mustache.to_html(template, relation);
+                    $('#sampleArea').append(html);
+                });
+            }
+        );
+    });
+    </script>
+</head>
+<body>
+
+<div>
+    <button type="button" class="btn btn-info" onClick="updateStats()">Stats</button>
+    <div id="stats">
+        <div id="stats-Approved"></div>
+        <div id="stats-Ignored"></div>
+        <div id="stats-Rejected"></div>
+        <div id="stats-Open"></div>
+    </div>
+</div>
+
+<div class="main-content">
+    <h1>Review This!</h1>
+    <div id="sampleArea"></div>
+</div>
+
+
+</body>
+</html>

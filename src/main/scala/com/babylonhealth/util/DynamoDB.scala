@@ -5,6 +5,7 @@ import java.net.URL
 import awscala.Region
 import awscala.dynamodbv2._
 import com.amazonaws.services.dynamodbv2.model.{Condition => JCondition, CreateTableRequest, KeySchemaElement}
+import com.amazonaws.services.simpleemail.model.VerificationStatus
 import com.amazonaws.services.{dynamodbv2 => aws}
 import com.google.gson.{Gson, GsonBuilder}
 
@@ -13,6 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 
 
 // classes for reading JSON sent from NLP guys
+case class RelationWithId(id: Int, relation: Relation)
 case class Relation(source: Source, meta_data: MetaData, knowledge: Knowledge)
 case class Source(date: String, `type`: String, payload: PayloadUrl)
 case class PayloadUrl(url: String)
@@ -34,6 +36,12 @@ object KnowledgeTableColumns extends Enumeration {
 }
 
 
+object DynamoDb {
+  var dynamoDb: Option[DynamoDb] = None
+  def get(): DynamoDb = {
+    dynamoDb.getOrElse{ dynamoDb = Some(new DynamoDb()); dynamoDb.get }
+  }
+}
 class DynamoDb(isTest: Boolean = true) {
 //  import com.babylonhealth.util._
 
@@ -57,12 +65,22 @@ class DynamoDb(isTest: Boolean = true) {
   // TODO: solve (threading?) issues - this doesn't initialize properly with spray
   def gson: Gson = new GsonBuilder().setPrettyPrinting.create
 
+  // this is for local testing purposes (not for test runs which load this own test data)
+//    loadRelations(scala.io.Source.fromURL(getClass.getResource("/relations_human_annotations_test.json")).getLines().mkString)
+
   def updateRelationStatus(id: Int, newStatus: VerificationStatus.Value): Unit = {
     dynamoDB.putAttributes(knowledgeTable, id, attributes = (status.toString, newStatus.toString))
   }
   def getById(id: Int) = dynamoDB.get(knowledgeTable, id)
-  def getNextRelations(limit: Int = 10): Array[Relation] = {
-    dynamoDB.scan(knowledgeTable, filterOpen, limit = limit)
+  def getNextRelationWithIds(limit: Int = 20): Array[RelationWithId] = {
+    // TODO: this filter isn't working!
+    dynamoDB.scan(knowledgeTable, filterStatus(Open), limit = limit)
+      .map(x => (x.attributes.find(_.name == id.toString).get.value.n.get.toInt,
+        x.attributes.find(_.name == knowledge.toString).get.value.s.get))
+      .map(x => RelationWithId(x._1, gson.fromJson(x._2, classOf[Relation]))).toArray
+  }
+  def getRelations(status: VerificationStatus.Value = Open, limit: Int = 10): Array[Relation] = {
+    dynamoDB.scan(knowledgeTable, filterStatus(status), limit = limit)
       .flatMap(_.attributes.filter(_.name == knowledge.toString))
       .flatMap(_.value.s)
       .map(x => gson.fromJson(x, classOf[Relation])).toArray
@@ -73,10 +91,10 @@ class DynamoDb(isTest: Boolean = true) {
     val countBefore = dynamoDB.describe(knowledgeTable).get.itemCount
 
     val startIndex = dynamoDB.describe(knowledgeTableName).get.itemCount
-    (0 until relations.size).map(_ + startIndex).foreach { i =>
-      val entry = relations(i.toInt)
-      println(s"putting: ${i} with status ${Open.toString}")
-      knowledgeTable.putItem(hashPK = i,
+    (0 until relations.size).foreach { i =>
+      val entry = relations(i)
+      println(s"putting: ${i+startIndex} with status ${Open.toString}")
+      knowledgeTable.putItem(hashPK = i + startIndex,
         attributes = (status.toString, Open.toString),
         (`type`.toString, gson.toJson(entry.knowledge.`type`)),
         (knowledge.toString, gson.toJson(entry))
@@ -108,6 +126,6 @@ class DynamoDb(isTest: Boolean = true) {
     Thread.sleep(1000l)
     dynamoDB.table(knowledgeTableName).get
   }
-  private def filterOpen: Seq[(String, JCondition)] = Seq((status.toString, Condition.eq(Open.toString)))
+  private def filterStatus(verificationStatus: VerificationStatus.Value): Seq[(String, JCondition)] = Seq((status.toString, Condition.eq(verificationStatus.toString)))
 
 }
